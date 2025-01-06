@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snowball Catch Game</title>
+    <style>
+        body {
+            background: linear-gradient(to bottom, #87CEFA, #FFFFFF);
+            color: #333;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        canvas {
+            display: block;
+            margin: 20px auto;
+            background: #1E90FF;
+            border: 3px solid white;
+            border-radius: 10px;
+        }
+
+        #scoreboard {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        #gameOver {
+            font-size: 36px;
+            color: red;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Snowball Catch Game</h1>
+    <canvas id="gameCanvas" width="600" height="400"></canvas>
+    <div id="scoreboard">Score: 0 | Missed: 0</div>
+    <div id="gameOver">Game Over! Press F5 to Restart</div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreboard = document.getElementById('scoreboard');
+        const gameOverMessage = document.getElementById('gameOver');
+
+        // Game variables
+        let score = 0;
+        let missed = 0;
+        const maxMissed = 5;
+        const snowballs = [];
+        const player = { x: 275, y: 350, width: 50, height: 10, color: 'red' };
+
+        // Generate snowballs at random intervals
+        setInterval(() => {
+            const size = Math.random() * 20 + 10;
+            const speed = Math.random() * 2 + 1;
+            const x = Math.random() * (canvas.width - size);
+            snowballs.push({ x, y: 0, size, speed });
+        }, 800);
+
+        // Draw player
+        function drawPlayer() {
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+        }
+
+        // Draw snowballs
+        function drawSnowballs() {
+            ctx.fillStyle = 'white';
+            for (const ball of snowballs) {
+                ctx.beginPath();
+                ctx.arc(ball.x, ball.y, ball.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Update snowballs
+        function updateSnowballs() {
+            for (const ball of snowballs) {
+                ball.y += ball.speed;
+
+                // Check collision with player
+                if (
+                    ball.y + ball.size > player.y &&
+                    ball.x + ball.size > player.x &&
+                    ball.x < player.x + player.width
+                ) {
+                    score++;
+                    ball.y = canvas.height + 1; // Remove ball
+                }
+
+                // Check if ball missed
+                if (ball.y > canvas.height) {
+                    missed++;
+                    ball.y = canvas.height + 1; // Remove ball
+                }
+            }
+
+            // Remove snowballs that are off-screen
+            for (let i = snowballs.length - 1; i >= 0; i--) {
+                if (snowballs[i].y > canvas.height) {
+                    snowballs.splice(i, 1);
+                }
+            }
+        }
+
+        // Update scoreboard
+        function updateScoreboard() {
+            scoreboard.textContent = `Score: ${score} | Missed: ${missed}`;
+        }
+
+        // Game Over
+        function checkGameOver() {
+            if (missed >= maxMissed) {
+                gameOverMessage.style.display = 'block';
+                cancelAnimationFrame(gameLoop);
+            }
+        }
+
+        // Game Loop
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawPlayer();
+            drawSnowballs();
+            updateSnowballs();
+            updateScoreboard();
+            checkGameOver();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Player Movement
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' && player.x > 0) {
+                player.x -= 30;
+            } else if (e.key === 'ArrowRight' && player.x + player.width < canvas.width) {
+                player.x += 30;
+            }
+        });
+
+        // Start the game loop
+        gameLoop();
+    </script>
+</body>
+
+</html>
