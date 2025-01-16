@@ -1,20 +1,22 @@
-/* Canvas Styling */
 canvas {
     display: block;
     margin: 20px auto;
-    background: #1E90FF;
-    border: 3px solid white;
+    background: #7cb4ec;
+    border: 5px solid red;
     border-radius: 10px;
 }
 
-/* Scoreboard Styling */
-#scoreboard {
-    font-size: 24px;
-    font-weight: bold;
-    margin-top: 10px;
+#title {
+    color: white;
+    margin: 0;
 }
 
-/* Game Over Message */
+#scoreboard {
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+}
+
 #gameOver {
     font-size: 36px;
     color: red;
@@ -26,12 +28,18 @@ canvas {
     font-size: 20px;
     padding-inline: 10px;
     padding-block: 5px;
-    background-color: #1E90FF;
+    background-color: red;
     border-radius: 10px;
-    border: 2px solid black;
+    border: 2px solid white;
     transition: 0.2s;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-self: center;
+    gap: 5px;
+    margin-top: 20px;
 }
 
 #startButton:hover {
-    background-color: #226cb7;
+    background-color: rgb(173, 17, 17);
 }

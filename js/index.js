@@ -1,11 +1,9 @@
-// Select elements
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const scoreboard = document.getElementById("scoreboard");
 const gameOverMessage = document.getElementById("gameOver");
 const startButton = document.getElementById("startButton"); // Start button element
 
-// Game variables
 let score = 0;
 let missed = 0;
 const maxMissed = 10;
@@ -13,10 +11,13 @@ const snowballs = [];
 const player = { x: 275, y: 350, width: 100, height: 10, color: "red" };
 
 let snowballInterval = 2000;
+let gameLoopId = null; // Store requestAnimationFrame ID
+let snowballGeneratorInterval = null; // Store snowball generator interval
+let snowballSpeedInterval = null; // Store speed decrease interval
 
-// Function to generate snowballs at regular intervals
+//function to generate snowballs with different sizes
 function generateSnowballs() {
-  setInterval(() => {
+  snowballGeneratorInterval = setInterval(() => {
     const size = Math.random() * 20 + 10;
     const snowballSpeed = 2;
     const x = Math.random() * (canvas.width - size);
@@ -24,20 +25,30 @@ function generateSnowballs() {
   }, snowballInterval);
 }
 
-// Decrease the interval over time
-setInterval(() => {
-  if (snowballInterval > 200) {
-    snowballInterval -= 100; // Reduce interval by 100ms every 5 seconds
-  }
-}, 5000);
+//decrease the interval over time with 100ms every 5 seconds
+function adjustSnowballSpeed() {
+  snowballSpeedInterval = setInterval(() => {
+    if (snowballInterval > 1000) {
+      snowballInterval -= 100;
 
-// Draw player
+      console.log("current interval: ", snowballInterval);
+
+      clearInterval(snowballGeneratorInterval);
+
+      console.log("cleared and restarted");
+      generateSnowballs();
+    }
+  }, 2000);
+}
+
+//ctx = canvas rendering context
+//draw the player (the stick catching the snowballs)
 function drawPlayer() {
   ctx.fillStyle = player.color;
   ctx.fillRect(player.x, player.y, player.width, player.height);
 }
 
-// Draw snowballs
+//draw snowballs on the canvas
 function drawSnowballs() {
   ctx.fillStyle = "white";
   for (const ball of snowballs) {
@@ -47,66 +58,82 @@ function drawSnowballs() {
   }
 }
 
-// Update snowballs
+//update snowballs
 function updateSnowballs() {
   for (let i = snowballs.length - 1; i >= 0; i--) {
     const ball = snowballs[i];
     ball.y += ball.snowballSpeed;
 
-    // Check collision with player (snowball must be above the player and within player width)
+    //check collision with player (snowball should be above the player and within player width)
     if (
-      ball.y + ball.size >= player.y && // Ball is vertically above the player
-      ball.y <= player.y + player.height && // Ball is vertically within the player
-      ball.x + ball.size > player.x && // Ball is horizontally within the player
+      ball.y + ball.size >= player.y &&
+      ball.y <= player.y + player.height &&
+      ball.x + ball.size > player.x &&
       ball.x < player.x + player.width
     ) {
-      score++; // Increase score for catching the snowball
-      snowballs.splice(i, 1); // Remove the snowball
-      continue; // Skip further checks for this snowball
+      score++; //increase the score for catching the snowball
+      snowballs.splice(i, 1); //remove the snowball from the canvas
+      continue; //skip further checks for this snowball
     }
 
-    // Check if ball missed (i.e., it went off the bottom of the canvas)
+    //check if ball was missed
     if (ball.y > canvas.height) {
-      missed++; // Increase missed count
-      snowballs.splice(i, 1); // Remove the snowball
+      missed++; //increase the missed count
+      snowballs.splice(i, 1); //remove the snowball
     }
   }
 }
 
-// Update scoreboard
+//update scoreboard
 function updateScoreboard() {
   scoreboard.textContent = `Score: ${score} | Missed: ${missed}`;
 }
 
-// Game Over
+//game over function
 function checkGameOver() {
   if (missed >= maxMissed) {
     gameOverMessage.style.display = "block";
-    cancelAnimationFrame(gameLoop);
+    cancelAnimationFrame(gameLoopId); // Stop the game loop
+    clearInterval(snowballGeneratorInterval); // Stop snowball generation
+    clearInterval(snowballSpeedInterval); // Stop speed adjustment
   }
 }
 
-// Game Loop
+//game Loop
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  updatePlayerMovement(); // Update player position
-  drawPlayer(); // Draw player
-  drawSnowballs(); // Draw snowballs
-  updateSnowballs(); // Update snowballs
-  updateScoreboard(); // Update scoreboard
-  checkGameOver(); // Check if the game is over
+  updatePlayerMovement(); //update player position
+  drawPlayer(); //draw player
+  drawSnowballs(); //draw snowballs
+  updateSnowballs(); //update snowballs
+  updateScoreboard(); //update scoreboard
+  checkGameOver(); //check if the game is over
 
-  requestAnimationFrame(gameLoop); // Continue the game loop
+  gameLoopId = requestAnimationFrame(gameLoop); //continue the game loop
 }
 
 function restartGame() {
-  // Reset game variables
+  removeButton();
+
+  //reset all game variables
   score = 0;
   missed = 0;
-  snowballs.length = 0; // Clear existing snowballs
+  snowballs.length = 0; //clear existing snowballs
   gameOverMessage.style.display = "none";
   snowballInterval = 2000;
+
+  // Clear any existing intervals or loops
+  if (gameLoopId) cancelAnimationFrame(gameLoopId);
+  if (snowballGeneratorInterval) clearInterval(snowballGeneratorInterval);
+  if (snowballSpeedInterval) clearInterval(snowballSpeedInterval);
+
+  // Restart intervals
+  adjustSnowballSpeed();
+  generateSnowballs();
+
+  isGamePlaying = true;
+
   // Restart the game loop
   gameLoop();
 }
@@ -116,7 +143,7 @@ const keys = {
   right: false,
 };
 
-// Player movement
+//player movement with arrow keys
 window.addEventListener("keydown", (e) => {
   if (e.key === "ArrowLeft") {
     keys.left = true;
@@ -133,26 +160,31 @@ window.addEventListener("keyup", (e) => {
   }
 });
 
-// Update player movement based on keys being pressed
+//update player movement based on keys being pressed
 function updatePlayerMovement() {
   if (keys.left && player.x > 0) {
-    player.x -= 5; // Move left
+    player.x -= 5; //move left
   }
   if (keys.right && player.x + player.width < canvas.width) {
-    player.x += 5; // Move right
+    player.x += 5; //move right
   }
 }
 
-// Player Movement
+//button to restart game
 window.addEventListener("keydown", (e) => {
   if (e.key === "Enter" || e.key === "r") {
     restartGame();
   }
 });
 
-// Start the game when the start button is clicked
+function removeButton() {
+  startButton.style.display = "none"; //hide the start button when the game starts
+  generateSnowballs(); //start snowball generation when the game starts
+  adjustSnowballSpeed(); // Start adjusting speed
+}
+
+//start the game when the start button is clicked
 startButton.addEventListener("click", function () {
-  startButton.style.display = "none"; // Hide the start button when the game starts
-  generateSnowballs(); // Start snowball generation when the game starts
-  gameLoop(); // Start the game loop
+  removeButton();
+  gameLoop(); //start the game loop
 });
