@@ -1,3 +1,5 @@
+import Snowball from "./snowball.js";
+
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const scoreboard = document.getElementById("scoreboard");
@@ -61,15 +63,14 @@ function generateSnowballs() {
 
   function spawnSnowball() {
     const size = Math.random() * 20 + 10;
-    const snowballSpeed = 2;
+    const speed = 2;
     const x = Math.random() * (canvas.width - size);
-    snowballs.push({ x, y: 0, size, snowballSpeed });
+    snowballs.push(new Snowball(x, 0, size, speed, ctx));
 
-    // Schedule the next snowball generation with the current interval
     snowballGeneratorInterval = setTimeout(spawnSnowball, snowballInterval);
   }
 
-  spawnSnowball(); // Start the recursive loop
+  spawnSnowball();
 }
 
 function adjustSnowballSpeed() {
@@ -87,31 +88,23 @@ function drawPlayer() {
 }
 
 function drawSnowballs() {
-  ctx.fillStyle = "white";
   for (const ball of snowballs) {
-    ctx.beginPath();
-    ctx.arc(ball.x, ball.y, ball.size, 0, Math.PI * 2);
-    ctx.fill();
+    ball.draw();
   }
 }
 
 function updateSnowballs() {
   for (let i = snowballs.length - 1; i >= 0; i--) {
     const ball = snowballs[i];
-    ball.y += ball.snowballSpeed;
+    ball.update();
 
-    if (
-      ball.y + ball.size >= player.y &&
-      ball.y <= player.y + player.height &&
-      ball.x + ball.size > player.x &&
-      ball.x < player.x + player.width
-    ) {
+    if (ball.isColliding(player)) {
       score++;
       snowballs.splice(i, 1);
       continue;
     }
 
-    if (ball.y > canvas.height) {
+    if (ball.isOutOfBounds(canvas.height)) {
       missed++;
       snowballs.splice(i, 1);
     }
