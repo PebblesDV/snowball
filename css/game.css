@@ -6,6 +6,11 @@ canvas {
     border-radius: 10px;
 }
 
+.gametab {
+    height: 100dvh;
+    margin-block: 20px;
+}
+
 #title {
     color: white;
     margin: 0;
@@ -18,7 +23,7 @@ canvas {
 }
 
 #gameOver {
-    font-size: 36px;
+    font-size: 30px;
     color: red;
     display: none;
 }
@@ -40,6 +45,14 @@ canvas {
     margin-top: 20px;
 }
 
+#gift {
+    transition: transform 0.2s ease-in-out;
+}
+
 #startButton:hover {
     background-color: rgb(173, 17, 17);
+}
+
+#startButton:hover #gift {
+    transform: scale(1.1);
 }

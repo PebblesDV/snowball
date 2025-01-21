@@ -9,14 +9,19 @@
     <link rel="stylesheet" href="css/index.css">
 </head>
 
-<body>
+<body class="gametab">
     <div class="game">
-    <h1 id="title">Catch the Snowballs!</h1>
+    <div class="big-text">
+        <img class="icon" src="images/snowflake.svg" alt="snowflake">
+        <h1>Catch the Snowballs!</h1>
+        <img class="icon" src="images/snowflake.svg" alt="snowflake">
+    </div>
+    
     <canvas id="gameCanvas" width="800" height="500"></canvas>
     <div id="scoreboard">Score: 0 | Missed: 0</div>
 
     <button id="startButton">
-        <img src="images/gift.svg" alt="gift icon">
+        <img id="gift" src="images/gift.svg" alt="gift icon">
         Start game</button>
 
     <div id="gameOver">Game Over! Press Enter to Restart</div>

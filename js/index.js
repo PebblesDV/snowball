@@ -30,9 +30,21 @@ function startGame() {
 }
 
 function stopGame() {
-  cancelAnimationFrame(gameLoopId);
-  clearInterval(snowballGeneratorInterval);
-  clearInterval(snowballSpeedInterval);
+  if (gameLoopId) {
+    cancelAnimationFrame(gameLoopId);
+    gameLoopId = null;
+  }
+
+  if (snowballGeneratorInterval) {
+    clearTimeout(snowballGeneratorInterval);
+    snowballGeneratorInterval = null;
+  }
+
+  if (snowballSpeedInterval) {
+    clearInterval(snowballSpeedInterval);
+    snowballSpeedInterval = null;
+  }
+
   snowballs = [];
 }
 
@@ -59,8 +71,6 @@ function setupIntervals() {
 }
 
 function generateSnowballs() {
-  console.log("INTERVAL STARTED");
-
   function spawnSnowball() {
     const size = Math.random() * 20 + 10;
     const speed = 2;
@@ -79,7 +89,7 @@ function adjustSnowballSpeed() {
       snowballInterval -= 100;
       console.log("Snowball interval adjusted to:", snowballInterval);
     }
-  }, 5000);
+  }, 2000);
 }
 
 function drawPlayer() {
