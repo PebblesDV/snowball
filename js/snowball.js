@@ -1,12 +1,14 @@
 export default class Snowball {
+  //initializes properties of snowball
   constructor(x, y, size, speed, ctx) {
-    this.x = x;
-    this.y = y;
-    this.size = size;
-    this.speed = speed;
-    this.ctx = ctx;
+    this.x = x; //x position
+    this.y = y; //y position
+    this.size = size; //size
+    this.speed = speed; //speed
+    this.ctx = ctx; //canvas rendering
   }
 
+  //draws snowball on canvas
   draw() {
     this.ctx.beginPath();
     this.ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
@@ -14,10 +16,12 @@ export default class Snowball {
     this.ctx.fill();
   }
 
+  //updates snowball y position
   update() {
     this.y += this.speed;
   }
 
+  //checks if snowball collides with player
   isColliding(player) {
     return (
       this.y + this.size >= player.y &&
@@ -27,6 +31,7 @@ export default class Snowball {
     );
   }
 
+  //checks if snowball is out of bounds
   isOutOfBounds(canvasHeight) {
     return this.y > canvasHeight;
   }
